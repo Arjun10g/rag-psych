@@ -8,6 +8,7 @@ const SOURCE_COLORS = {
   mtsamples: "#22d3ee",  // cyan-400
   pubmed:    "#e879f9",  // fuchsia-400
   icd11:     "#34d399",  // emerald-400
+  icd12:     "#fbbf24",  // amber-400
 };
 const SLATE_400 = "#94a3b8";
 const SLATE_300 = "#cbd5e1";
@@ -121,7 +122,7 @@ function renderPerQuery(run) {
 // ─── Top-5 source mix per query (stacked horizontal bars) ──────────────────
 function renderSourceMix(run) {
   const rows = run.per_query.filter(r => !r.off_topic);
-  const sources = ["mtsamples", "pubmed", "icd11"];
+  const sources = ["mtsamples", "pubmed", "icd11", "icd12"];
   const datasets = sources.map(src => ({
     label: src,
     data: rows.map(r => (r.sources_top5 || []).filter(s => s === src).length),

@@ -44,7 +44,7 @@ DEFAULT_NEGATION_WINDOW = 15
 # candidate pool. Each sub-query returns DEFAULT_PER_SOURCE_K rows; RRF
 # unions them into the final candidate list.
 DEFAULT_PER_SOURCE_K = 20
-SOURCE_TYPES: tuple[str, ...] = ("mtsamples", "pubmed", "icd11")
+SOURCE_TYPES: tuple[str, ...] = ("mtsamples", "pubmed", "icd11", "icd12")
 
 _reranker: CrossEncoder | None = None
 

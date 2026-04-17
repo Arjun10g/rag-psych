@@ -50,7 +50,8 @@
             <span class="px-2 py-0.5 rounded-md
               {% if h.source_type == 'mtsamples' %}bg-cyan-950 text-cyan-300{% endif %}
               {% if h.source_type == 'pubmed' %}bg-fuchsia-950 text-fuchsia-300{% endif %}
-              {% if h.source_type == 'icd11' %}bg-emerald-950 text-emerald-300{% endif %}">
+              {% if h.source_type == 'icd11' %}bg-emerald-950 text-emerald-300{% endif %}
+              {% if h.source_type == 'icd12' %}bg-amber-950 text-amber-300{% endif %}">
               {{ h.source_type }}
             </span>
             {% if h.section %}

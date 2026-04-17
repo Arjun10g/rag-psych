@@ -96,7 +96,7 @@ def _require_eval_password(
             headers={"WWW-Authenticate": 'Basic realm="rag-psych eval"'},
         )
 
-SourceType = Literal["mtsamples", "pubmed", "icd11"]
+SourceType = Literal["mtsamples", "pubmed", "icd11", "icd12"]
 
 
 class QueryRequest(BaseModel):
