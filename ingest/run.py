@@ -60,14 +60,12 @@ def main() -> None:
     model = SentenceTransformer(model_name)
 
     summary: dict[str, tuple[int, int]] = {}
-    with psycopg.connect(db_url) as conn:
-        register_vector(conn)
-        for name in requested:
-            src = _get_source(name)
-            if src is None:
-                summary[name] = (0, 0)
-                continue
-            summary[name] = _ingest(conn, src, model)
+    for name in requested:
+        src = _get_source(name)
+        if src is None:
+            summary[name] = (0, 0)
+            continue
+        summary[name] = _ingest(db_url, src, model)
 
     _print_summary(summary)
 
@@ -111,7 +109,7 @@ def _get_source(name: str) -> Source | None:
 
 
 def _ingest(
-    conn: psycopg.Connection, src: Source, model: SentenceTransformer
+    db_url: str, src: Source, model: SentenceTransformer
 ) -> tuple[int, int]:
     print(f"\n=== {src.source_type} ===")
     pairs = list(_load_and_chunk(src))
@@ -124,7 +122,7 @@ def _ingest(
     print(f"  {n_docs} documents, {n_chunks} chunks")
 
     embeddings = _embed_all(model, pairs)
-    return _write(conn, src.source_type, pairs, embeddings)
+    return _write(db_url, src.source_type, pairs, embeddings)
 
 
 def _load_and_chunk(src: Source) -> Iterator[tuple[RawDocument, list[Chunk]]]:
@@ -151,31 +149,39 @@ def _embed_all(
 
 
 def _write(
-    conn: psycopg.Connection,
+    db_url: str,
     source_type: str,
     pairs: list[tuple[RawDocument, list[Chunk]]],
     embeddings: np.ndarray,
 ) -> tuple[int, int]:
-    """Upsert documents and replace their chunks in a single transaction."""
+    """Upsert documents and replace their chunks in a single transaction.
+
+    Opens a FRESH connection per source to avoid Neon/managed-Postgres
+    idle-timeout drops during the long CPU embedding phase. A single
+    connection held across embedding gets killed by the gateway and
+    fails the subsequent write with 'SSL connection has been closed'.
+    """
     inserted_docs = 0
     inserted_chunks = 0
     idx = 0
-    with conn.transaction(), conn.cursor() as cur:
-        for doc, chunks in tqdm(pairs, desc=f"upsert {source_type}", unit="doc"):
-            doc_id = _upsert_document(cur, doc)
-            cur.execute("DELETE FROM chunks WHERE document_id = %s", (doc_id,))
-            rows = [
-                (doc_id, c.section, c.chunk_index, c.text, embeddings[idx + i])
-                for i, c in enumerate(chunks)
-            ]
-            cur.executemany(
-                "INSERT INTO chunks (document_id, section, chunk_index, chunk_text, embedding) "
-                "VALUES (%s, %s, %s, %s, %s)",
-                rows,
-            )
-            idx += len(chunks)
-            inserted_docs += 1
-            inserted_chunks += len(rows)
+    with psycopg.connect(db_url) as conn:
+        register_vector(conn)
+        with conn.transaction(), conn.cursor() as cur:
+            for doc, chunks in tqdm(pairs, desc=f"upsert {source_type}", unit="doc"):
+                doc_id = _upsert_document(cur, doc)
+                cur.execute("DELETE FROM chunks WHERE document_id = %s", (doc_id,))
+                rows = [
+                    (doc_id, c.section, c.chunk_index, c.text, embeddings[idx + i])
+                    for i, c in enumerate(chunks)
+                ]
+                cur.executemany(
+                    "INSERT INTO chunks (document_id, section, chunk_index, chunk_text, embedding) "
+                    "VALUES (%s, %s, %s, %s, %s)",
+                    rows,
+                )
+                idx += len(chunks)
+                inserted_docs += 1
+                inserted_chunks += len(rows)
     print(f"  upserted {inserted_docs} documents, {inserted_chunks} chunks")
     return inserted_docs, inserted_chunks
 
