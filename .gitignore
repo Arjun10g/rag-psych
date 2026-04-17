@@ -90,3 +90,10 @@ CLAUDE.local.md
 *.zip
 _scaffold_tmp/
 
+# ─────────────────────────────────────────────────────────────
+# DSM parser — local personal use only, never push to remote.
+# ingest/run.py imports this lazily only when --sources dsm5 is passed,
+# so the rest of the pipeline runs fine without it.
+# ─────────────────────────────────────────────────────────────
+ingest/sources/dsm.py
+
