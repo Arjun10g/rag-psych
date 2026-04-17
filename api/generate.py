@@ -37,7 +37,7 @@ from .hybrid import RerankedHit
 REFUSAL_STRING = "The provided notes do not contain information to answer this."
 
 DEFAULT_MODEL = "claude-haiku-4-5"
-DEFAULT_MAX_TOKENS = 1024
+DEFAULT_MAX_TOKENS = 2048
 
 _CITATION_RE = re.compile(r"\[(\d+)\]")
 
@@ -68,8 +68,13 @@ RULES (follow exactly, in order):
      - The chunks are about adjacent topics but don't answer the specific question
      - The chunks contradict each other and you cannot resolve the contradiction
 
-Output format: prose, complete sentences, citations inline. Aim for 2-4 sentences
-for most queries — concise is better than padded."""
+Output format: prose, complete sentences, citations inline. Match response length
+to the question. Simple factual questions get a short answer (2-4 sentences). When
+the user asks for criteria, definitions, a full description, differential diagnosis,
+treatment options, symptom lists, or anything the chunks provide in detail, give
+the full answer the chunks support — do not truncate. Use short paragraphs or
+bulleted lists when that makes long answers easier to scan. Every claim still needs
+a citation."""
 
 
 @dataclass(frozen=True)
