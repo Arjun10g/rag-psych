@@ -31,7 +31,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -138,6 +138,12 @@ async def _validation_handler(request: Request, exc: RequestValidationError) -> 
     into the response body, which CLAUDE.md rule 8 forbids.
     """
     return JSONResponse(status_code=400, content={"error": "invalid_request"})
+
+
+@app.get("/", include_in_schema=False)
+def root() -> RedirectResponse:
+    """Bare Space URL → /ui. Also catches HF Spaces' platform healthcheck."""
+    return RedirectResponse(url="/ui", status_code=307)
 
 
 @app.get("/health")
