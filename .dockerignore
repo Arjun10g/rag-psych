@@ -1,0 +1,44 @@
+# Never bake secrets or data into images
+.env
+.env.*
+!.env.example
+data/
+*.csv
+*.parquet
+
+# Python local state
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local dev noise
+.git/
+.gitignore
+.vscode/
+.idea/
+.DS_Store
+*.log
+logs/
+pgdata/
+
+# Tests and docs don't need to be in runtime images
+eval/
+docs/
+README.md
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+
+# Bulky / one-time scaffolding
+rag-psych-scaffold.zip
+medical.zip
+tests/
+
+# Don't bake the ingest pipeline into the API image — it's run from the
+# host at corpus-load time, not at request time. Keep the build context
+# scoped to api/ + requirements.
+ingest/

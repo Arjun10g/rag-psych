@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eval · rag-psych</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.169.0/build/three.module.js" } }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden">
+
+  <canvas id="neural-bg" class="fixed inset-0 w-full h-full -z-10 opacity-30"></canvas>
+
+  <main class="relative max-w-7xl mx-auto px-6 py-10">
+
+    <nav class="mb-8 flex items-center justify-between text-sm">
+      <a href="/ui" class="text-slate-400 hover:text-cyan-300 transition-colors">
+        ← back to search
+      </a>
+      <span class="text-slate-600 uppercase tracking-widest text-xs">eval dashboard</span>
+    </nav>
+
+    <header class="mb-10" id="eval-hero">
+      <h1 class="text-4xl font-light tracking-tight mb-2">
+        <span class="text-cyan-300">evaluation</span>
+        <span class="text-slate-500">·</span>
+        <span class="text-fuchsia-300">metrics</span>
+      </h1>
+      <p class="text-slate-400 text-sm">
+        Live view of <code class="text-slate-300">eval/run_eval.py</code>
+        output + current corpus state. All numbers are real — re-run the
+        harness and refresh to see new values.
+      </p>
+    </header>
+
+    <!-- Aggregate cards (top row) — populated from the latest run -->
+    <section id="agg-cards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
+      <!-- JS injects cards here -->
+    </section>
+
+    <!-- Per-query metrics -->
+    <section class="mb-10">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-3">per-query metrics (latest run)</h2>
+      <div class="eval-panel">
+        <canvas id="chart-per-query"></canvas>
+      </div>
+    </section>
+
+    <!-- Source mix per query -->
+    <section class="mb-10">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-3">top-5 source mix per query</h2>
+      <div class="eval-panel">
+        <canvas id="chart-source-mix"></canvas>
+      </div>
+    </section>
+
+    <!-- Latency per query -->
+    <section class="mb-10">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-3">latency per query (retrieval vs generation)</h2>
+      <div class="eval-panel">
+        <canvas id="chart-latency"></canvas>
+      </div>
+    </section>
+
+    <!-- Run history (only if >1 run) -->
+    <section class="mb-10 hidden" id="run-history-section">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-3">aggregate metrics across runs</h2>
+      <div class="eval-panel">
+        <canvas id="chart-run-history"></canvas>
+      </div>
+    </section>
+
+    <!-- Corpus stats -->
+    <section class="mb-10 grid md:grid-cols-2 gap-6">
+      <div>
+        <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-3">corpus by source</h2>
+        <div class="eval-panel">
+          <canvas id="chart-corpus"></canvas>
+        </div>
+      </div>
+      <div>
+        <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-3">top sections</h2>
+        <div class="eval-panel">
+          <canvas id="chart-sections"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error / empty state -->
+    <div id="eval-error" class="hidden rounded-xl border border-amber-700/50 bg-amber-950/30 p-6 text-amber-200 text-sm">
+      <span id="eval-error-msg"></span>
+    </div>
+
+    <footer class="mt-16 text-xs text-slate-600 text-center">
+      portfolio demo · all metrics from eval/results/*.json + live Postgres
+    </footer>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+  <script src="/static/eval.js"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>help · rag-psych</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.169.0/build/three.module.js" } }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden">
+
+  <canvas id="neural-bg" class="fixed inset-0 w-full h-full -z-10 opacity-40"></canvas>
+
+  <main class="relative max-w-4xl mx-auto px-6 py-10">
+
+    <nav class="mb-8 flex items-center justify-between text-sm">
+      <a href="/ui" class="text-slate-400 hover:text-cyan-300 transition-colors">
+        ← back to search
+      </a>
+      <span class="text-slate-600 uppercase tracking-widest text-xs">help</span>
+    </nav>
+
+    <header class="mb-12" id="help-hero">
+      <h1 class="text-4xl font-light tracking-tight mb-3">
+        <span class="text-cyan-300">what</span>
+        <span class="text-slate-500">it</span>
+        <span class="text-fuchsia-300">does</span>
+      </h1>
+      <p class="text-slate-400 text-[15px] leading-relaxed">
+        <strong class="text-slate-200">rag-psych</strong> is a retrieval-augmented
+        question-answering system over a local corpus of psychiatry /
+        mental-health reference material. You type a clinical question;
+        the system finds the most relevant passages in the corpus, has
+        an LLM compose a grounded answer with citations back to those
+        passages, and shows you the supporting passages alongside the
+        answer so you can verify every claim.
+      </p>
+    </header>
+
+    <!-- ─── What it offers ────────────────────────────────────────────── -->
+    <section class="mb-12" id="offers">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-4">what it offers</h2>
+      <div class="grid md:grid-cols-2 gap-3">
+        <div class="help-card">
+          <h3 class="text-slate-100 font-medium mb-1">Grounded answers</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Every factual claim in the response is followed by a
+            <code class="citation-sample">[chunk_id]</code> citation
+            linking to the exact passage it came from. Click a citation
+            to scroll to and highlight its chunk.
+          </p>
+        </div>
+        <div class="help-card">
+          <h3 class="text-slate-100 font-medium mb-1">Source transparency</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Retrieved passages are shown on the right with their source
+            (clinical notes, research abstracts, or diagnostic references)
+            colour-coded and labelled. No hidden reasoning.
+          </p>
+        </div>
+        <div class="help-card">
+          <h3 class="text-slate-100 font-medium mb-1">Hallucination detection</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Cited IDs that do not appear in the retrieved set are flagged
+            in the answer and in a warning banner. The model does not get
+            to quote things that weren't retrieved.
+          </p>
+        </div>
+        <div class="help-card">
+          <h3 class="text-slate-100 font-medium mb-1">Insufficient-evidence refusal</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            When the corpus doesn't contain an answer, the system returns
+            a canonical refusal string rather than inventing one. Off-topic
+            queries trigger this at the retrieval layer with no LLM call.
+          </p>
+        </div>
+        <div class="help-card">
+          <h3 class="text-slate-100 font-medium mb-1">Negation-aware retrieval</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Passages that <em>deny</em> the queried concept ("patient
+            denies suicidal ideation") are filtered out before reaching
+            the answer step, so they're never cited as positive evidence.
+          </p>
+        </div>
+        <div class="help-card">
+          <h3 class="text-slate-100 font-medium mb-1">Hybrid retrieval</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Three retrievers run in parallel — dense semantic search,
+            BM25-style keyword, and literal rare-token matching — then
+            Reciprocal Rank Fusion and a cross-encoder re-score the
+            combined candidate pool.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What you can ask ──────────────────────────────────────────── -->
+    <section class="mb-12" id="examples">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-4">what to ask</h2>
+      <div class="space-y-3 text-sm">
+        <div class="help-example">
+          <span class="help-example-tag">diagnostic</span>
+          <p>criteria for generalized anxiety disorder</p>
+          <p>essential features of post-traumatic stress disorder</p>
+          <p>diagnostic criteria for obsessive compulsive disorder</p>
+        </div>
+        <div class="help-example">
+          <span class="help-example-tag">clinical scenarios</span>
+          <p>45-year-old female presenting with depressive symptoms and suicidal ideation</p>
+          <p>patient medication list including SSRI for depression</p>
+        </div>
+        <div class="help-example">
+          <span class="help-example-tag">research</span>
+          <p>cognitive behavioral therapy outcomes for anxiety disorders in adolescents</p>
+          <p>psychosocial interventions for bipolar disorder</p>
+        </div>
+        <div class="help-example">
+          <span class="help-example-tag">cross-source</span>
+          <p>what does the literature say about the diagnostic criteria for depression</p>
+          <p>how is suicidal ideation assessed clinically and what is its prevalence</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What it can't do ──────────────────────────────────────────── -->
+    <section class="mb-12" id="limits">
+      <h2 class="text-xs uppercase tracking-widest text-amber-400 mb-4">what it can't do</h2>
+      <ul class="space-y-2 text-sm text-slate-300 leading-relaxed list-disc list-inside">
+        <li>
+          <strong class="text-slate-100">Medical advice.</strong> Answers
+          are grounded in reference material, not a clinician's judgement.
+          Never use this to make a real diagnostic or treatment decision.
+        </li>
+        <li>
+          <strong class="text-slate-100">Real-time information.</strong>
+          The corpus is a snapshot. It doesn't know about new papers,
+          guidelines, or drug approvals published after ingest time.
+        </li>
+        <li>
+          <strong class="text-slate-100">PHI-sensitive work.</strong>
+          All source data is public or de-identified. Do not paste
+          identifiable patient information into queries.
+        </li>
+        <li>
+          <strong class="text-slate-100">Multi-hop reasoning.</strong>
+          Each query is answered in a single pass. Questions that need
+          separate lookups and then a comparison
+          ("<em>is the criterion for X different in version Y vs Z?</em>")
+          are handled more loosely than direct lookups.
+        </li>
+        <li>
+          <strong class="text-slate-100">Exact-string drug dosing.</strong>
+          If the corpus doesn't contain a literal "<em>drug name + dose</em>"
+          mention, the system may return same-class alternatives rather
+          than the precise dose you asked for.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ─── Pipeline (glossary) ───────────────────────────────────────── -->
+    <section class="mb-12" id="pipeline">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-4">how a query flows</h2>
+      <ol class="space-y-3 text-sm text-slate-300 leading-relaxed list-decimal list-inside">
+        <li>Your query is embedded with a clinical-domain sentence
+          encoder, and in parallel tokenised for keyword and rare-token
+          lookups.</li>
+        <li>Three retrievers run against the local vector database and
+          return their top candidates independently.</li>
+        <li>The candidate lists are fused by Reciprocal Rank Fusion,
+          deduplicated, and re-scored by a cross-encoder reranker.</li>
+        <li>A rule-based negation filter drops any surviving passage
+          where the queried concept is denied / ruled out / negative for.</li>
+        <li>If the best remaining passage clears a confidence threshold,
+          the top-k are sent to a language model with a strict system
+          prompt: answer only from these, cite every claim, refuse cleanly
+          if the passages don't support an answer.</li>
+        <li>The response is parsed for citation integrity — any cited
+          ID not in the retrieved set is flagged before the answer is
+          rendered.</li>
+      </ol>
+    </section>
+
+    <!-- ─── What's next ───────────────────────────────────────────────── -->
+    <section class="mb-12" id="roadmap">
+      <h2 class="text-xs uppercase tracking-widest text-cyan-300 mb-4">what it could offer next</h2>
+      <ul class="space-y-2 text-sm text-slate-300 leading-relaxed list-disc list-inside">
+        <li><strong class="text-slate-100">Per-source retrieval balance.</strong>
+          Currently one source can crowd out others when a query spans
+          topics. Fetching top-K from each source independently before
+          fusion would keep all three voices in the final answer.</li>
+        <li><strong class="text-slate-100">Stronger reranker.</strong>
+          The current cross-encoder is a general-purpose MS-MARCO model.
+          Swapping to a clinical-tuned reranker would reduce the
+          "case-study" bias observed in the eval set.</li>
+        <li><strong class="text-slate-100">Agentic follow-up queries.</strong>
+          For multi-hop questions, giving the model a retrieval tool and
+          letting it iterate would outperform the current single-pass
+          design.</li>
+        <li><strong class="text-slate-100">Continuous evaluation.</strong>
+          The eval harness already runs against 16 labelled queries.
+          Running it on every ingest change and diffing the JSON outputs
+          would catch regressions early.</li>
+      </ul>
+    </section>
+
+    <!-- ─── Behind-the-curtain (gated) ────────────────────────────────── -->
+    <section class="mb-12" id="behind">
+      <h2 class="text-xs uppercase tracking-widest text-slate-500 mb-4">behind the curtain</h2>
+      <p class="text-slate-400 text-sm leading-relaxed">
+        A live evaluation dashboard with per-query metrics, source-mix
+        breakdowns, latency profile, and run history is available at
+        <a href="/eval" class="text-cyan-300 hover:text-cyan-200 underline decoration-dotted">/eval</a>
+        &mdash; password-protected so it doesn't leak eval numbers to casual
+        visitors. Credentials come from the operator's <code class="citation-sample">.env</code>.
+      </p>
+    </section>
+
+    <footer class="mt-16 text-xs text-slate-600 text-center">
+      portfolio demo · no PHI · pgvector + S-PubMedBert + RRF + ms-marco-MiniLM rerank
+    </footer>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+  <script type="module" src="/static/help.js"></script>
+</body>
+</html>

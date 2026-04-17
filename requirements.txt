@@ -1,0 +1,37 @@
+# Core
+python-dotenv>=1.0.0
+
+# Data + embeddings
+pandas>=2.2.0
+sentence-transformers>=3.0.0
+torch>=2.2.0           # pulled in by sentence-transformers; pin loosely
+tqdm>=4.66.0           # progress bars in ingest runner
+
+# Source-specific fetchers
+biopython>=1.83        # PubMed via Entrez
+requests>=2.32.0       # ICD-11 REST client + UI → API calls
+pypdf>=5.0.0           # DSM-5 PDF parsing (local personal-use source)
+
+# Database
+psycopg[binary]>=3.2.0 # psycopg v3, NOT psycopg2
+pgvector>=0.3.0        # Python helpers for pgvector
+
+# API
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.8.0
+slowapi>=0.1.9         # simple rate limiting
+
+# Generator
+anthropic>=0.40.0
+
+# UI — HTMX templates served by FastAPI itself (no second framework)
+jinja2>=3.1.0
+python-multipart>=0.0.9    # FastAPI Form() body parsing
+
+# Evaluation
+pyyaml>=6.0.0
+
+# Dev tools
+ruff>=0.6.0
+pytest>=8.0.0

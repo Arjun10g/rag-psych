@@ -1,0 +1,139 @@
+# Hand-labeled eval set for the rag-psych pipeline.
+#
+# Each entry has:
+#   id           — short string ID for the markdown report
+#   query        — the question
+#   off_topic    — true if the system MUST refuse (no clinical content)
+#   expected_sources    — sources we expect at least one top-5 hit from
+#                         (mtsamples / pubmed / icd11)
+#   expected_keywords   — terms a useful answer must touch on; we score
+#                         "keyword recall" = fraction that appear in top-5
+#                         chunk_text. At least one should appear.
+#   negation     — optional. If set, top-5 chunks must NOT contain a
+#                  literal negation pattern around the salient term
+#                  (sanity check that the NegEx filter held).
+#
+# The set deliberately mixes:
+#   - canonical diagnostic queries (ICD-11)  ×4
+#   - clinical-scenario queries (MTSamples)  ×3
+#   - research queries (PubMed)              ×3
+#   - cross-source queries                    ×2
+#   - off-topic refusal probes                ×2
+#   - exact-token / negation edge cases       ×2
+
+queries:
+
+  # ─── Diagnostic / ICD-11 ────────────────────────────────────────────────
+
+  - id: diag_gad
+    query: criteria for generalized anxiety disorder
+    off_topic: false
+    expected_sources: [icd11]
+    expected_keywords: [anxiety, worry, tension, concentration, irritability]
+
+  - id: diag_ptsd
+    query: essential features of post-traumatic stress disorder
+    off_topic: false
+    expected_sources: [icd11]
+    expected_keywords: [trauma, threatening, re-experiencing, avoidance, hyperarousal]
+
+  - id: diag_ocd
+    query: diagnostic criteria for obsessive compulsive disorder
+    off_topic: false
+    expected_sources: [icd11]
+    expected_keywords: [obsessions, compulsions, repetitive, intrusive]
+
+  - id: diag_depression
+    query: ICD-11 definition of major depressive episode
+    off_topic: false
+    expected_sources: [icd11]
+    expected_keywords: [depressed, mood, anhedonia, episode, weeks]
+
+  # ─── Clinical scenarios / MTSamples ─────────────────────────────────────
+
+  - id: clin_low_mood
+    query: 45 year old female presenting with depressive symptoms and suicidal ideation
+    off_topic: false
+    expected_sources: [mtsamples]
+    expected_keywords: [depressive, suicidal, ideation, female]
+
+  - id: clin_psych_consult
+    query: psychiatric consultation for an elderly patient with mood disturbance
+    off_topic: false
+    expected_sources: [mtsamples]
+    expected_keywords: [psychiatric, consult, mood, history]
+
+  - id: clin_meds
+    query: patient medication list including SSRI for depression
+    off_topic: false
+    expected_sources: [mtsamples]
+    expected_keywords: [depression, mg]
+
+  # ─── Research / PubMed ──────────────────────────────────────────────────
+
+  - id: res_cbt_anxiety
+    query: cognitive behavioral therapy outcomes for anxiety disorders in adolescents
+    off_topic: false
+    expected_sources: [pubmed]
+    expected_keywords: [cognitive, anxiety, adolescent]
+
+  - id: res_psychosocial
+    query: psychosocial interventions for bipolar disorder
+    off_topic: false
+    expected_sources: [pubmed]
+    expected_keywords: [psychosocial, bipolar, intervention]
+
+  - id: res_diagnostic_methodology
+    query: research methodology issues in diagnosing depression
+    off_topic: false
+    expected_sources: [pubmed]
+    expected_keywords: [diagnos, depression, research]
+
+  # ─── Cross-source ──────────────────────────────────────────────────────
+
+  - id: cross_dep_criteria
+    query: what does the research literature say about the diagnostic criteria for depression
+    off_topic: false
+    expected_sources: [pubmed, icd11]
+    expected_keywords: [depression, criteria, diagnos]
+
+  - id: cross_si_evaluation
+    query: how is suicidal ideation assessed clinically and what is its prevalence
+    off_topic: false
+    expected_sources: [mtsamples, pubmed]
+    expected_keywords: [suicidal, ideation]
+
+  # ─── Off-topic / refusal probes ─────────────────────────────────────────
+
+  - id: off_pizza
+    query: best pizza recipe Naples Italy weather
+    off_topic: true
+
+  - id: off_celebrity
+    query: who won the 2024 super bowl
+    off_topic: true
+
+  # ─── Edge cases ─────────────────────────────────────────────────────────
+
+  - id: edge_sertraline_exact
+    query: sertraline 50mg for major depressive disorder
+    off_topic: false
+    # Lexical-boost retriever exists specifically so the literal Sertraline
+    # chunks get a fair shot. We expect at least one mtsamples chunk back.
+    expected_sources: [mtsamples, icd11]
+    expected_keywords: [sertraline, mg]
+
+  - id: edge_negation_si
+    query: patient with active suicidal ideation
+    off_topic: false
+    expected_sources: [mtsamples, pubmed]
+    expected_keywords: [suicidal, ideation]
+    # NegEx filter must have dropped any "denies SI" / "no SI" chunks.
+    negation:
+      salient_term: suicidal
+      forbidden_patterns:
+        - "denies suicidal"
+        - "no suicidal"
+        - "denied suicidal"
+        - "no SI"
+        - "denies SI"

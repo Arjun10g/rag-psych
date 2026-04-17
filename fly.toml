@@ -1,0 +1,55 @@
+# fly.toml — Fly.io app configuration for rag-psych.
+#
+# Pairs with api/Dockerfile. The Postgres database is NOT on Fly — it's
+# on Neon (or another managed pgvector host); set DATABASE_URL via:
+#   fly secrets set DATABASE_URL='postgresql://...'
+#
+# Deploy:
+#   fly launch --no-deploy --copy-config       # first time, picks region & app name
+#   fly secrets set ANTHROPIC_API_KEY=... ...   # see docs/deploy-fly.md
+#   fly deploy
+#
+# Cost note: with auto_stop_machines=true and min_machines_running=0,
+# the app pays $0 when idle; the first request after idle pays a 5–10 s
+# cold-start while the embedder + reranker load.
+
+app = "rag-psych"            # change to your unique Fly app name
+primary_region = "iad"        # Ashburn, VA — closest Fly region to Neon's us-east-1
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  HOST = "0.0.0.0"
+  # Set CORS_ORIGIN, EVAL_PASSWORD, ANTHROPIC_API_KEY, DATABASE_URL,
+  # NCBI_EMAIL, ICD_CLIENT_ID, ICD_CLIENT_SECRET via `fly secrets set`.
+  # They appear here at runtime as normal env vars.
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"   # scale to zero when idle
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 20
+    hard_limit = 30
+
+[[http_service.checks]]
+  grace_period = "30s"           # models take 5–10 s to load on cold start
+  interval = "30s"
+  method = "get"
+  path = "/health"
+  protocol = "http"
+  timeout = "10s"
+
+[[vm]]
+  # 2 GB RAM is the minimum that comfortably holds embedder + reranker
+  # in memory. shared-cpu-1x is enough; bump to shared-cpu-2x if rerank
+  # latency feels slow under load.
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 2048

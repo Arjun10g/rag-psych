@@ -1,0 +1,125 @@
+/* Custom styles layered on top of Tailwind CDN. */
+
+html, body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+
+/* HTMX request indicator visibility toggle. */
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator { display: flex; }
+
+/* Loading dots (used by #spinner). */
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1.0); opacity: 1.0; }
+}
+.pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+/* Citation chips inside the rendered answer. */
+.citation {
+  display: inline-block;
+  padding: 0 6px;
+  margin: 0 1px;
+  border-radius: 6px;
+  background: rgba(34, 211, 238, 0.12);
+  color: #67e8f9;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+}
+.citation:hover, .citation:focus, .citation.citation-active {
+  background: rgba(34, 211, 238, 0.25);
+  color: #cffafe;
+  outline: none;
+}
+.citation-invalid {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+/* Chunk-card highlight when its citation is hovered/clicked. */
+.chunk-glow {
+  border-color: rgba(34, 211, 238, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.4),
+              0 8px 30px rgba(34, 211, 238, 0.18);
+}
+
+/* line-clamp utility (Tailwind CDN doesn't ship plugins). */
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─── Help page ─────────────────────────────────────────────────────── */
+.help-card {
+  border: 1px solid rgb(30, 41, 59);        /* slate-800 */
+  background: rgba(15, 23, 42, 0.6);        /* slate-900 / 60 */
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  backdrop-filter: blur(6px);
+  transition: border-color 150ms ease;
+}
+.help-card:hover { border-color: rgba(34, 211, 238, 0.35); }
+
+.help-example {
+  border: 1px solid rgb(30, 41, 59);
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: rgb(203, 213, 225);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.help-example p { margin: 0.1rem 0; color: rgb(203, 213, 225); }
+
+.help-example-tag {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  margin-bottom: 0.35rem;
+  border-radius: 0.375rem;
+  background: rgba(34, 211, 238, 0.1);
+  color: rgb(103, 232, 249);
+  font-family: -apple-system, "Inter", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.citation-sample {
+  display: inline-block;
+  padding: 0 0.35rem;
+  background: rgba(34, 211, 238, 0.15);
+  color: rgb(103, 232, 249);
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+/* ─── /eval dashboard ───────────────────────────────────────────────── */
+.eval-panel {
+  border: 1px solid rgb(30, 41, 59);
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  backdrop-filter: blur(6px);
+  min-height: 260px;
+  height: 340px;
+}
+
+.agg-card {
+  border: 1px solid rgb(30, 41, 59);
+  background: rgba(15, 23, 42, 0.65);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  backdrop-filter: blur(6px);
+}
+.agg-cyan    { border-left: 3px solid rgb(34, 211, 238); }
+.agg-fuchsia { border-left: 3px solid rgb(232, 121, 249); }
+.agg-emerald { border-left: 3px solid rgb(52, 211, 153); }
+.agg-amber   { border-left: 3px solid rgb(251, 191, 36); }
+.agg-slate   { border-left: 3px solid rgb(71, 85, 105); }

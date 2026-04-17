@@ -1,0 +1,92 @@
+# ─────────────────────────────────────────────────────────────
+# Secrets — NEVER commit these
+# ─────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+credentials.json
+
+# ─────────────────────────────────────────────────────────────
+# Data — MTSamples and any derived data stays local
+# ─────────────────────────────────────────────────────────────
+data/*
+!data/.gitkeep
+!data/fixtures/
+*.csv
+*.parquet
+*.jsonl
+!eval/test_queries.yaml
+
+# ─────────────────────────────────────────────────────────────
+# Evaluation outputs
+# ─────────────────────────────────────────────────────────────
+eval/results/
+eval/*.json
+!eval/test_queries.yaml
+
+# ─────────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+
+# ─────────────────────────────────────────────────────────────
+# Model caches (can be large, stay local)
+# ─────────────────────────────────────────────────────────────
+.cache/
+huggingface/
+~/.cache/huggingface/
+models/
+
+# ─────────────────────────────────────────────────────────────
+# Docker volumes and local state
+# ─────────────────────────────────────────────────────────────
+pgdata/
+postgres-data/
+*.log
+logs/
+
+# ─────────────────────────────────────────────────────────────
+# IDE and OS
+# ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ─────────────────────────────────────────────────────────────
+# Claude Code local memory — personal, do not share
+# ─────────────────────────────────────────────────────────────
+CLAUDE.local.md
+.claude/
+
+# ─────────────────────────────────────────────────────────────
+# Jupyter scratch
+# ─────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+!notebooks/*.ipynb
+
+# ─────────────────────────────────────────────────────────────
+# Local archives + scaffolding scratch (never push to remote)
+# ─────────────────────────────────────────────────────────────
+*.zip
+_scaffold_tmp/
+

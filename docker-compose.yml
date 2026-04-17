@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rag-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./ingest/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-api
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL for in-container networking. The .env value
+      # uses localhost so the host-side ingest script works; this override
+      # routes the API container to the postgres service hostname.
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # Allow same-origin requests from the API host to its own /ui page
+      # (the UI is served from this container, not a separate one).
+      CORS_ORIGIN: http://localhost:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      # Expose the eval harness output directory to the dashboard.
+      # Read-only: the container never writes here; the host runs
+      # eval/run_eval.py and the container renders what it finds.
+      - ./eval/results:/app/eval/results:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+# The UI lives at /ui inside the api container — no separate UI service.
+# Phase 5 swapped Streamlit for HTMX templates served by FastAPI directly.
+
+volumes:
+  pgdata:
