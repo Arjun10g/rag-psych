@@ -159,7 +159,7 @@ def health() -> JSONResponse:
 
 
 @app.post("/query", response_model=QueryResponse)
-@limiter.limit("30/minute")
+@limiter.limit("5/minute;20/hour;30/day")
 def query(request: Request, body: QueryRequest) -> QueryResponse:
     """Run the RAG pipeline end-to-end. See module docstring for guarantees."""
     qhash = hash_query(body.query)
@@ -302,7 +302,7 @@ def _corpus_stats() -> dict[str, Any]:
 
 
 @app.post("/ui/query", response_class=HTMLResponse)
-@limiter.limit("30/minute")
+@limiter.limit("5/minute;20/hour;30/day")
 def ui_query(
     request: Request,
     query: str = Form(..., min_length=1, max_length=2000),
